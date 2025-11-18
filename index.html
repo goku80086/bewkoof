@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <style>
+        /* Basic setup */
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #000;
+            color: #0F0;
+            overflow: hidden;
+        }
+
+        /* The fake terminal */
+        #terminal {
+            padding: 20px;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        
+        #terminal p {
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        /* The hidden birthday card */
+        #birthday-card {
+            display: none; /* Hidden by default */
+            height: 100%;
+            background-color: #f8f8f8;
+            color: #333;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 50px;
+            box-sizing: border-box;
+
+            /* --- THIS IS THE SCROLLING FIX --- */
+            overflow-y: auto;
+
+            /* 360-degree background with mountains and lakes */
+            background: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') no-repeat center center fixed;
+            background-size: cover;
+            background-attachment: fixed;
+
+            /* Overlay gradient for better text readability */
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') no-repeat center center fixed;
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #birthday-card h2 {
+            font-size: 3em;
+            color: white;
+            text-shadow: 2px 2px 4px #000000a8;
+        }
+
+        /* --- STYLE FOR THE CAKE --- */
+        #cake {
+            max-height: 400px; /* Increased size for better visibility */
+            height: auto;
+            margin-bottom: 15px; /* Adds some space between the cake and photo */
+            cursor: pointer; /* Indicate it's clickable */
+            transition: transform 0.3s ease; /* Smooth animation on hover */
+        }
+
+        #cake:hover {
+            transform: scale(1.05); /* Slight zoom on hover */
+        }
+
+        #cake.blown {
+            opacity: 0.7; /* Fade effect when blown */
+            transition: opacity 0.5s ease; /* Smooth fade */
+        }
+
+        #cake.replaced {
+            opacity: 1; /* Full opacity for friend's pic */
+            animation: fadeIn 1s ease-in; /* Fade-in effect */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        #birthday-card img {
+            margin-top: 20px;
+            max-width: 80%;
+            height: auto;
+            border-radius: 15px;
+            border: 5px solid white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        #friend-pic {
+            max-width: 50%;
+            max-height: 300px;
+            height: auto;
+        }
+
+        #birthday-card p {
+            font-size: 1.5em;
+            color: white;
+            margin-top: 20px;
+            padding-bottom: 50px; /* Adds space at the very bottom */
+            text-shadow: 1px 1px 2px #000000a8;
+        }
+        #pic {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+
+        }
+        #birthday-video {
+            max-width: 80%;
+            height: auto;
+            border-radius: 15px;
+            border: 5px solid white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="terminal">
+        <p id="line1"></p>
+        <p id="line2"></p>
+        <p id="line3"></p>
+        <p id="line4"></p>
+    </div>
+
+    <div id="birthday-card">
+        <div id="message" style="display: none; font-size: 2em; color: white; text-shadow: 2px 2px 4px #000; margin-bottom: 20px;">Candles blown!</div>
+        <h2>HAPPY BIRTHDAY, NILAKSHI</h2>
+
+        <img id="cake" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOGxrMW82cGZyZHRpajY5Zmc3eW92cTJ2em5hNjhnZXBuaDE0bTJsNiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/jxTnOS8Mkv8n6/giphy.gif" alt="Animated birthday cake">
+<div id="pic">
+    <video id="birthday-video" src="nila.mp4" autoplay muted style="display: none"></video>
+    <img id="friend-pic" src="conga.jpg" alt="Friend's photo" style="display: none">
+
+
+</div>
+            <p>You're an amazing friend. Hope you have the best day😊!</p>
+    </div>
+
+    <script>
+        // --- CUSTOMIZE YOUR MESSAGE HERE --- 
+        const lines = [
+            "> Hey Nilakshi...",
+            "> Today is your birthday...",
+            "> So I made you this little program.",
+            "> Hope you like it😉... launching now..."
+        ];
+        // -------------------------------------
+
+        const terminal = document.getElementById('terminal');
+        const lineElements = [
+            document.getElementById('line1'),
+            document.getElementById('line2'),
+            document.getElementById('line3'),
+            document.getElementById('line4')
+        ];
+        
+        let lineIndex = 0;
+        let charIndex = 0;
+        const typeSpeed = 100; // Time in ms between characters
+
+        function typeLine() {
+            if (lineIndex < lines.length) {
+                const currentLine = lines[lineIndex];
+                if (charIndex < currentLine.length) {
+                    // Type one character
+                    lineElements[lineIndex].textContent += currentLine[charIndex];
+                    charIndex++;
+                    setTimeout(typeLine, typeSpeed);
+                } else {
+                    // Move to the next line
+                    lineIndex++;
+                    charIndex = 0;
+                    setTimeout(typeLine, typeSpeed * 5); // Wait a bit before starting next line
+                }
+            } else {
+                // Finished typing all lines
+                setTimeout(revealBirthdayCard, 2000); // Wait 2 seconds before reveal
+            }
+        }
+
+        function revealBirthdayCard() {
+            // Hide terminal
+            document.getElementById('terminal').style.display = 'none';
+
+            // Show birthday card
+            document.getElementById('birthday-card').style.display = 'block';
+
+            // Add click event to cake
+            const cake = document.getElementById('cake');
+            cake.addEventListener('click', blowCandles);
+        }
+
+        function blowCandles() {
+            const cake = document.getElementById('cake');
+            const birthdayVideo = document.getElementById('birthday-video');
+            const friendPic = document.getElementById('friend-pic');
+            const message = document.getElementById('message');
+            // Add blown effect
+            cake.classList.add('blown');
+            // Show message
+            message.style.display = 'block';
+            // After fade, hide cake and show video
+            setTimeout(() => {
+                cake.style.display = 'none';
+                birthdayVideo.style.display = 'block';
+                birthdayVideo.play(); // Ensure it plays
+            }, 1000); // Wait for fade to complete
+
+            // Add event listener for video end
+            birthdayVideo.addEventListener('ended', () => {
+                birthdayVideo.style.display = 'none';
+                friendPic.style.display = 'block';
+                friendPic.classList.add('replaced');
+            });
+        }
+
+        // Start the typing effect
+        setTimeout(typeLine, 1000); // Start after a 1-second delay
+    </script>
+
+</body>
+</html>
